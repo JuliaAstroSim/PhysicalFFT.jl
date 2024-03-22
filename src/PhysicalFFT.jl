@@ -8,6 +8,7 @@ using Unitful
 
 using AstroSimBase
 using PhysicalMeshes
+using PhysicalMeshes.PhysicalParticles
 
 
 export fft_poisson!, fft_poisson
