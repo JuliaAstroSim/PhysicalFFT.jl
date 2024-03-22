@@ -22,8 +22,6 @@
             fft_poisson!(m, m.rho, m.config.boundary)
             s = sol.(m.pos)
             r = m.phi .- s
-    
-            return L2norm(r)
         end
         test_fft1D(8, Periodic())
         test_fft1D(8, Dirichlet())
@@ -44,8 +42,6 @@
             fft_poisson!(m, m.rho, m.config.boundary)
             s = sol.(m.pos)
             r = m.phi .- s
-    
-            return L2norm(r)
         end
         test_fft2D(8, Periodic())
         test_fft2D(8, Dirichlet())
@@ -69,8 +65,6 @@
             fft_poisson!(m, m.rho, m.config.boundary)
             s = sol.(m.pos)
             r = m.phi .- s
-    
-            return L2norm(r)
         end
         test_fft3D(8, Periodic())
         test_fft3D(8, Dirichlet())
