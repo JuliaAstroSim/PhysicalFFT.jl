@@ -2,11 +2,13 @@ module PhysicalFFT
 
 using FFTW
 using CUDA
+using PrecompileTools
 
 using Unitful
 
 using AstroSimBase
 using PhysicalMeshes
+
 
 export fft_poisson!, fft_poisson
 
@@ -264,5 +266,7 @@ function fft_poisson(m::AbstractMesh, G::Number)
     g = 4 * pi * G
     fft_poisson!(m, ustrip.(m.rho .* g), m.config.boundary)
 end
+
+include("precompile.jl")
 
 end # module PhysicalFFT
