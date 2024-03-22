@@ -1,0 +1,10 @@
+name = "PhysicalFFT"
+uuid = "d41fe92e-7e57-414e-90fb-fae81d34872f"
+authors = ["islent <leoislent@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+AstroSimBase = "c6a34d98-f626-4d8d-b450-a3f124eaada6"
+FFTW = "7a1cc6ca-52ef-59f5-83cd-3a7055c09341"
+PhysicalMeshes = "97d9904f-034f-4fb7-aeaa-03a173434233"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
