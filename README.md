@@ -52,7 +52,7 @@ where $M$ is the mesh size in each direction and `d` is the dimension of the pro
 Consequently, for meshes $\ge 16^3$, the memory usage ($\ge$ 64GB) and computation time ($\ge$ 10 hrs) are not affordable.
 
 `PhysicalFFT.jl` supports resolution of $512^3$ with minimum effort: 10 sec on both GPU (shared GPU memory is used) and CPU.
-For meshes smaller than $256^3$, the computation time on GPU is 1~4 orders of magnitude smaller than on CPU.
+For meshes smaller than $256^3$, the computation time on GPU is 1~4 orders of magnitude shorter than on CPU.
 However, the vacuum boundary conditions, which are necessary for isolated gravitational systems,
 are not yet supported in `PhysicalFFT.jl`.
 Nevertheless, the errors from periodic boundary conditions are tolerable if the simulation box is sufficiently large compared to the system's length scale.
@@ -65,8 +65,8 @@ $$\Delta u = f$$
 
 ```julia
 using PhysicalFFT
-using PhysicalMeshes
-using PhysicalMeshes.Particles
+using PhysicalFFT.PhysicalMeshes
+using PhysicalMeshes.PhysicalParticles
 
 sol(p::PVector) =  sin(2*pi*p.x) * sin(2*pi*p.y) * sin(2*pi*p.z) + sin(32*pi*p.x) * sin(32*pi*p.y) * sin(2*pi*p.z) / 256
 init_rho(p::PVector) = -12 * pi * pi * sin(2*pi*p.x) * sin(2*pi*p.y) * sin(2*pi*p.z) - 12 * pi * pi * sin(32*pi*p.x) * sin(32*pi*p.y) * sin(32*pi*p.z)
