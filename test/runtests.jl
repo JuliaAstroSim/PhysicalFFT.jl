@@ -106,7 +106,11 @@ end
     end
 
     @testset "Dirichlet" begin
-        @test test_fft3D(8, Dirichlet()) < 0.14
-        @test test_fft3D(16, Dirichlet()) < 0.40
+        @test test_fft3D(8, Dirichlet()) < 0.1
+        @test test_fft3D(16, Dirichlet()) < 0.3
     end
+end
+
+@testset "Vacuum boundary conditions" begin
+    
 end
