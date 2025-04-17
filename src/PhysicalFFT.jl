@@ -101,9 +101,12 @@ function fft_poisson(Δ, Len, rho::AbstractArray{T,2}, boundary::Periodic, Devic
     
     xx = fft_grid_kk(Len[1])
     yy = fft_grid_kk(Len[2])
+
+    dc = delta2sum .+ delta2[1] * cos.(CuArray(xx * ones(Len[2]+1)')) # dcx
+    dc .+= delta2[2] * cos.(CuArray(ones(Len[1]+1) * yy'))
     
     # solve u_bar
-    u_bar = rho_bar ./ (delta2sum .+ delta2[1] * cos.(CuArray(xx * ones(Len[2]+1)')) + delta2[2] * cos.(CuArray(ones(Len[1]+1) * yy')))
+    u_bar = rho_bar ./ dc
     
     u = real(ifft(u_bar))
 end
@@ -133,7 +136,7 @@ function fft_poisson(Δ, Len, rho::AbstractArray{T,3}, boundary::Periodic, Devic
 end
 
 function fft_poisson(Δ, Len, rho::AbstractArray{T,3}, boundary::Periodic, Device::GPU) where T
-    rho_bar = fft(rho)    
+    rho_bar = fft(cu(rho))    
     CUDA.@allowscalar rho_bar[1] *= 0.0
     
     delta2 = 2 ./ (ustrip.(Δ) .^ 2)
@@ -144,13 +147,16 @@ function fft_poisson(Δ, Len, rho::AbstractArray{T,3}, boundary::Periodic, Devic
     zz = fft_grid_kk(Len[3])
     
     oneMatrix = cu(ones((Len.+1)...))
-    dcx = delta2[1] .* cos.(oneMatrix .* cu(xx))
-    dcy = delta2[2] .* cos.(oneMatrix .* cu(yy'))
-    dcz = delta2[3] .* cos.(oneMatrix .* cu(reshape(zz, 1, 1, Len[3]+1)))
-    u_bar = rho_bar ./ (delta2sum .+ dcx .+ dcy .+ dcz)
+    dc = delta2sum .+ delta2[1] .* cos.(oneMatrix .* cu(xx)) # dcx
+    dc .+= delta2[2] .* cos.(oneMatrix .* cu(yy')) # dcy
+    dc .+= delta2[3] .* cos.(oneMatrix .* cu(reshape(zz, 1, 1, Len[3]+1))) # dcz
+    CUDA.unsafe_free!(oneMatrix) # release GPU memory
+    u_bar = rho_bar ./ dc
     CUDA.@allowscalar u_bar[1] = 0.0f0+0.0f0*im
+    CUDA.unsafe_free!(rho_bar)   # release GPU memory
+    CUDA.unsafe_free!(dc)        # release GPU memory
     
-    u = real(ifft(u_bar))
+    u = real(ifft(u_bar))        # FFT might consume a lot of GPU memory!!!
 end
 
 ### Homogeneous Dirichlet boundary conditions - fast sine transform
