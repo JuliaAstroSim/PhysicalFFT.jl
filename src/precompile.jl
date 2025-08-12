@@ -24,7 +24,9 @@
             r = m.phi .- s
         end
         test_fft1D(8, Periodic())
-        test_fft1D(8, Dirichlet())
+        if !(FFTW.get_provider() == "mkl")
+            test_fft1D(8, Dirichlet())
+        end
 
         function test_fft2D(Nx, boundary=Periodic())
             m = MeshCartesianStatic(;
@@ -44,7 +46,9 @@
             r = m.phi .- s
         end
         test_fft2D(8, Periodic())
-        test_fft2D(8, Dirichlet())
+        if !(FFTW.get_provider() == "mkl")
+            test_fft2D(8, Dirichlet())
+        end
 
         function test_fft3D(Nx, boundary=Periodic())
             m = MeshCartesianStatic(;
@@ -67,6 +71,8 @@
             r = m.phi .- s
         end
         test_fft3D(8, Periodic())
-        test_fft3D(8, Dirichlet())
+        if !(FFTW.get_provider() == "mkl")
+            test_fft3D(8, Dirichlet())
+        end
     end
 end

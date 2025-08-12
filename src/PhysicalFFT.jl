@@ -151,16 +151,25 @@ function fft_poisson(Δ, Len, rho::AbstractArray{T,3}, boundary::Periodic, Devic
     dc .+= delta2[2] .* cos.(oneMatrix .* cu(yy')) # dcy
     dc .+= delta2[3] .* cos.(oneMatrix .* cu(reshape(zz, 1, 1, Len[3]+1))) # dcz
     CUDA.unsafe_free!(oneMatrix) # release GPU memory
-    u_bar = rho_bar ./ dc
-    CUDA.@allowscalar u_bar[1] = 0.0f0+0.0f0*im
-    CUDA.unsafe_free!(rho_bar)   # release GPU memory
+    # u_bar = rho_bar ./ dc
+    rho_bar ./= dc # u_bar
+    # CUDA.@allowscalar u_bar[1] = 0.0f0+0.0f0*im
+    CUDA.@allowscalar rho_bar[1] = 0.0f0+0.0f0*im
+    # CUDA.unsafe_free!(rho_bar)   # release GPU memory
     CUDA.unsafe_free!(dc)        # release GPU memory
     
-    u = real(ifft(u_bar))        # FFT might consume a lot of GPU memory!!!
+    # u = real(ifft(u_bar))        # FFT might consume a lot of GPU memory!!!
+    u = real(ifft(rho_bar))        # FFT might consume a lot of GPU memory!!!
+    CUDA.unsafe_free!(rho_bar)        # release GPU memory
+    return u
 end
 
 ### Homogeneous Dirichlet boundary conditions - fast sine transform
 function fft_poisson(Δ, Len, rho::AbstractArray{T,1}, boundary::Dirichlet, Device::CPU) where T
+    if FFTW.get_provider() == "mkl"
+        error("MKL does not support r2r operation")
+    end
+    
     #rho_bar = fft(mesh.rho)
     #rho_bar[1] *= 0.0
     rho_bar = FFTW.r2r(complex(rho[2:end-1]), FFTW.RODFT00)
@@ -181,6 +190,10 @@ function fft_poisson(Δ, Len, rho::AbstractArray{T,1}, boundary::Dirichlet, Devi
 end
 
 function fft_poisson(Δ, Len, rho::AbstractArray{T,2}, boundary::Dirichlet, Device::CPU) where T
+    if FFTW.get_provider() == "mkl"
+        error("MKL does not support r2r operation")
+    end
+
     #rho_bar = fft(mesh.rho)
     #rho_bar[1] *= 0.0
     rho_bar = FFTW.r2r(complex(rho[2:end-1, 2:end-1]), FFTW.RODFT00)
@@ -204,6 +217,10 @@ function fft_poisson(Δ, Len, rho::AbstractArray{T,2}, boundary::Dirichlet, Devi
 end
 
 function fft_poisson(Δ, Len, rho::AbstractArray{T,3}, boundary::Dirichlet, Device::CPU) where T
+    if FFTW.get_provider() == "mkl"
+        error("MKL does not support r2r operation")
+    end
+
     #rho_bar = fft(mesh.rho)
     #rho_bar[1] *= 0.0
     rho_bar = FFTW.r2r(complex(rho[2:end-1, 2:end-1, 2:end-1]), FFTW.RODFT00)
